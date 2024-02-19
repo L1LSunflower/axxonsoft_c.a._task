@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"bytes"
+	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 	"time"
@@ -23,14 +24,19 @@ func Attempts(next http.Handler) http.Handler {
 			httpHandlers.ErrorResponse(resp, err.Error(), http.StatusBadRequest)
 			return
 		}
+		vars := mux.Vars(req)
+		requestId, ok := vars["taskId"]
+		if !ok {
+			requestId = uuid.New().String()
+			req.Header.Add(Id, requestId)
+		}
 		message := &logger.Message{
 			Message:     "ATTEMPT BEFORE",
 			FullMessage: string(body),
 			Datetime:    time.Now().Unix(),
-			ExtraData:   nil,
+			RequestId:   requestId,
 		}
 		logInstance.Info(message)
-		req.Header.Add(Id, uuid.New().String())
 		next.ServeHTTP(resp, req)
 		body, err = getResponseBody(resp)
 		if err != nil {
@@ -41,7 +47,7 @@ func Attempts(next http.Handler) http.Handler {
 			Message:     "ATTEMPT AFTER",
 			FullMessage: string(body),
 			Datetime:    time.Now().Unix(),
-			ExtraData:   nil,
+			RequestId:   requestId,
 		}
 		logInstance.Info(message)
 	})

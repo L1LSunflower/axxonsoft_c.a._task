@@ -15,7 +15,7 @@ type Config struct {
 
 type Redis struct {
 	Host string
-	Port int
+	Port string
 	Db   int
 	Tls  bool
 }
@@ -39,7 +39,7 @@ func GetConfig() *Config {
 			TaskLifetime: envInt("TASK_LIFETIME", 15), // Task lifetime represents time in minutes
 			Redis: &Redis{
 				Host: envString("REDIS_HOST", "localhost"),
-				Port: envInt("REDIS_PORT", 6379),
+				Port: envString("REDIS_PORT", "6379"),
 				Db:   envInt("REDIS_DB", 0),
 				Tls:  false,
 			},

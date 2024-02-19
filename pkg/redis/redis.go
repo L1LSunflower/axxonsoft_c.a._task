@@ -15,7 +15,7 @@ const redisTimeoutPing = 5 * time.Second
 var ErrRedisConnection = errors.New("failed connection to redis")
 
 type RInstance struct {
-	rConn *redis.Client
+	Client *redis.Client
 }
 
 var (
@@ -25,10 +25,10 @@ var (
 
 func Instance(host, password string, db int, tlsConf bool) (*RInstance, error) {
 	if redisInstance != nil {
-		return redisInstance, Ping(redisInstance.rConn)
+		return redisInstance, Ping(redisInstance.Client)
 	}
-	redisClientOnce.Do(func() { redisInstance = &RInstance{rConn: InstanceConnect(host, password, db, tlsConf)} })
-	return redisInstance, Ping(redisInstance.rConn)
+	redisClientOnce.Do(func() { redisInstance = &RInstance{Client: InstanceConnect(host, password, db, tlsConf)} })
+	return redisInstance, Ping(redisInstance.Client)
 }
 
 func InstanceConnect(host, password string, db int, tlsConf bool) *redis.Client {

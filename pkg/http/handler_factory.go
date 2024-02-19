@@ -1,12 +1,18 @@
 package http
 
 import (
-	"fmt"
+	"context"
+	"encoding/json"
 	"net/http"
 
-	"github.com/gorilla/mux"
-
+	"github.com/L1LSunflower/axxonsoft_c.a._task/config"
 	"github.com/L1LSunflower/axxonsoft_c.a._task/internal/entities"
+	
+	redisRepo "github.com/L1LSunflower/axxonsoft_c.a._task/internal/redis_repository"
+	"github.com/L1LSunflower/axxonsoft_c.a._task/internal/services"
+
+	"github.com/L1LSunflower/axxonsoft_c.a._task/pkg/http/middlewares"
+	"github.com/L1LSunflower/axxonsoft_c.a._task/pkg/redis"
 )
 
 const (
@@ -15,14 +21,25 @@ const (
 )
 
 func ErrorResponse(resp http.ResponseWriter, errorMessage string, statusCode int) {
-	errResp, err := entities.NewErrorResponse(errorMessage).ToBytes()
+	b, err := entities.NewErrorResponse(errorMessage).ToBytes()
 	if err != nil {
 		resp.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	resp.Write(errResp)
+	resp.Write(b)
 	resp.Header().Set(contentTypeKey, contentTypeVal)
 	resp.WriteHeader(statusCode)
+}
+
+func SuccessResponse(resp http.ResponseWriter, data any) {
+	b, err := json.Marshal(data)
+	if err != nil {
+		resp.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	resp.Write(b)
+	resp.Header().Set(contentTypeKey, contentTypeVal)
+	resp.WriteHeader(http.StatusOK)
 }
 
 func RegisterTask(resp http.ResponseWriter, req *http.Request) {
@@ -41,11 +58,22 @@ func Task(resp http.ResponseWriter, req *http.Request) {
 		ErrorResponse(resp, "that method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	vars := mux.Vars(req)
-	id, ok := vars["taskId"]
-	if !ok {
+	requestId := req.Header.Get(middlewares.Id)
+	if requestId == "" {
 		ErrorResponse(resp, "task is missing in parameter", http.StatusBadRequest)
 		return
 	}
-	fmt.Println(id)
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	defer cancelFunc()
+	cfg := config.GetConfig()
+	redisInstance, err := redis.Instance(cfg.Redis.Host, cfg.Redis.Port, cfg.Redis.Db, cfg.Redis.Tls)
+	if err != nil {
+		ErrorResponse(resp, "failed connection to redis", http.StatusFailedDependency)
+	}
+	cache := redisRepo.NewRepository(redisInstance.Client)
+	task, err := services.TaskStatus(ctx, cache, requestId)
+	if err != nil {
+		ErrorResponse(resp, err.Error(), http.StatusInternalServerError)
+	}
+	SuccessResponse(resp, task)
 }
