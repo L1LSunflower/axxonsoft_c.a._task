@@ -24,9 +24,10 @@ var (
 )
 
 func Instance(host, password string, db int, tlsConf bool) (*RInstance, error) {
-	if redisInstance == nil {
-		redisClientOnce.Do(func() { redisInstance = &RInstance{rConn: InstanceConnect(host, password, db, tlsConf)} })
+	if redisInstance != nil {
+		return redisInstance, Ping(redisInstance.rConn)
 	}
+	redisClientOnce.Do(func() { redisInstance = &RInstance{rConn: InstanceConnect(host, password, db, tlsConf)} })
 	return redisInstance, Ping(redisInstance.rConn)
 }
 

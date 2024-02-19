@@ -15,9 +15,11 @@ var (
 )
 
 func Instance() *LInstance {
-	if loggerInstance == nil {
-		loggerInstanceOnce.Do(func() { loggerInstance = &LInstance{logger: slog.Default()} })
+	if loggerInstance != nil {
+		return loggerInstance
 	}
+	// TODO: add logging level
+	loggerInstanceOnce.Do(func() { loggerInstance = &LInstance{logger: slog.Default()} })
 	return loggerInstance
 }
 
