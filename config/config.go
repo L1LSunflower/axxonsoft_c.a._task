@@ -14,10 +14,10 @@ type Config struct {
 }
 
 type Redis struct {
-	Host string
-	Port string
-	Db   int
-	Tls  bool
+	Host     string
+	Password string
+	Db       int
+	Tls      bool
 }
 
 type Logger struct {
@@ -38,10 +38,10 @@ func GetConfig() *Config {
 			Port:         envInt("PORT", 80),
 			TaskLifetime: envInt("TASK_LIFETIME", 15), // Task lifetime represents time in minutes
 			Redis: &Redis{
-				Host: envString("REDIS_HOST", "localhost"),
-				Port: envString("REDIS_PORT", "6379"),
-				Db:   envInt("REDIS_DB", 0),
-				Tls:  false,
+				Host:     envString("REDIS_HOST", "localhost"),
+				Password: envString("REDIS_PASSWORD", "secret"),
+				Db:       envInt("REDIS_DB", 0),
+				Tls:      false,
 			},
 			Logger: &Logger{
 				level: envInt("LOGGER_LEVEL", -4), // Default value means debugger value

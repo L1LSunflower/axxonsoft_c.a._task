@@ -1,13 +1,17 @@
 package entities
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type Task struct {
-	Id             string         `json:"id"`
-	Status         Status         `json:"status"`
-	HttpStatusCode int            `json:"httpStatusCode"`
-	Headers        map[string]any `json:"headers"`
-	ContentLength  int            `json:"length"`
+	Id             string           `json:"id"`
+	Url            string           `json:"url"`
+	Method         string           `json:"method"`
+	Status         Status           `json:"status"`
+	HttpStatusCode int              `json:"httpStatusCode"`
+	Headers        []map[string]any `json:"headers"`
+	ContentLength  int              `json:"length"`
 }
 
 func (t *Task) ToBytes() ([]byte, error) {

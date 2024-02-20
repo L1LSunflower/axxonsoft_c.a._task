@@ -1,19 +1,20 @@
 package http
 
 import (
+	"github.com/L1LSunflower/axxonsoft_c.a._task/pkg/logger"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
-
-	"github.com/L1LSunflower/axxonsoft_c.a._task/pkg/http/middlewares"
 )
 
 func Serve(port int) error {
 	router := mux.NewRouter()
-	router.Handle("/task", middlewares.Attempts(http.HandlerFunc(RegisterTask)))
-	router.Handle("/task/{taskId}", middlewares.Attempts(http.HandlerFunc(Task)))
-	if err := http.ListenAndServe(":"+strconv.Itoa(port), router); err != nil {
+	router.Handle("/task", RequestId(Attempts(http.HandlerFunc(RegisterTask))))
+	router.Handle("/task/{"+Id+"}", RequestId(Attempts(http.HandlerFunc(Task))))
+	strPort := strconv.Itoa(port)
+	logger.Instance().Info(&logger.Message{Message: "SERVER STARTED ON PORT: " + strPort})
+	if err := http.ListenAndServe(":"+strPort, router); err != nil {
 		return err
 	}
 	return nil

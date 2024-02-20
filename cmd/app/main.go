@@ -1,4 +1,4 @@
-package app
+package main
 
 import (
 	"github.com/L1LSunflower/axxonsoft_c.a._task/config"

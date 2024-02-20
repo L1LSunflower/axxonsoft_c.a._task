@@ -9,8 +9,7 @@ import (
 )
 
 type CacheInterface interface {
-	Set(ctx context.Context, uuid string, task *entities.Task, lifetime int) error
-	Update(ctx context.Context, task *entities.Task, status entities.Status, uuid string) error
+	Set(ctx context.Context, status entities.Status, task *entities.Task, lifetime int) error
 	Get(ctx context.Context, status entities.Status, uuid string) (*entities.Task, error)
 }
 

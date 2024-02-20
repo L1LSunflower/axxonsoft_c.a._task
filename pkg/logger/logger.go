@@ -24,13 +24,28 @@ func Instance() *LInstance {
 }
 
 func (l *LInstance) Info(msg *Message) {
-	l.logger.Info(msg.Message, msg.FullMessage, msg.Datetime, msg.ExtraData)
+	msgBytes, err := msg.ToBytes()
+	if err != nil {
+		l.logger.Error("failed to log with error: " + err.Error())
+		return
+	}
+	l.logger.Info(string(msgBytes))
 }
 
 func (l *LInstance) Error(msg *Message) {
-	l.logger.Info(msg.Message, msg.FullMessage, msg.Datetime, msg.ExtraData)
+	msgBytes, err := msg.ToBytes()
+	if err != nil {
+		l.logger.Error("failed to log with error: " + err.Error())
+		return
+	}
+	l.logger.Error(string(msgBytes))
 }
 
 func (l *LInstance) Warn(msg *Message) {
-	l.logger.Info(msg.Message, msg.FullMessage, msg.Datetime, msg.ExtraData)
+	msgBytes, err := msg.ToBytes()
+	if err != nil {
+		l.logger.Error("failed to log with error: " + err.Error())
+		return
+	}
+	l.logger.Warn(string(msgBytes))
 }
