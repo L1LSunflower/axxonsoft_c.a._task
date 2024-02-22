@@ -11,6 +11,8 @@ import (
 type CacheInterface interface {
 	Set(ctx context.Context, status entities.Status, task *entities.Task, lifetime int) error
 	Get(ctx context.Context, status entities.Status, uuid string) (*entities.Task, error)
+	Delete(ctx context.Context, status entities.Status, uuid string) error
+	GetTaskList(ctx context.Context, status entities.Status) ([]*entities.Task, error)
 }
 
 func NewRepository(cli *redis.Client) CacheInterface {
